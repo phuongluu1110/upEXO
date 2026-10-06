@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Đăng nội dung lên trang EXO</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#0a1020;--card:#111a30;--line:#26365c;--text:#e9ecf6;--mute:#93a0c0;--gold:#d8b45c;--ok:#7fd49a;--err:#ff8f80;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.1rem;margin:0 0 12px;color:var(--gold)}
+p.sub,small{color:var(--mute)}p.sub{margin:0 0 24px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:18px}
+label{display:block;font-size:.85rem;color:var(--mute);margin:10px 0 3px}
+input[type=text],input[type=password],textarea{width:100%;background:#070c19;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:9px 11px;font:inherit}
+textarea{min-height:150px;resize:vertical}textarea.s{min-height:70px}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chk{display:flex;gap:8px;align-items:center;margin-top:12px;color:var(--mute);font-size:.9rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{border:1px solid var(--line);border-radius:8px;padding:10px}
+.box{aspect-ratio:4/3;border:1px dashed var(--line);border-radius:6px;background:#070c19 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--mute);cursor:pointer;text-align:center;font-size:.8rem;padding:6px}
+.box.has{border:1px solid var(--gold)}
+.card textarea{min-height:90px}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--gold);background:transparent;color:var(--gold);padding:10px 16px}
+button.main{background:var(--gold);color:#1a1405;font-weight:600;width:100%;padding:14px}
+button:disabled{opacity:.5;cursor:wait}
+#log{font-size:.85rem;color:var(--mute);margin-top:12px}#log .ok{color:var(--ok)}#log .err{color:var(--err)}
+code{background:#070c19;border:1px solid var(--line);border-radius:6px;font-size:.8rem;padding:1px 5px}
+a{color:var(--gold)}
+@media (prefers-color-scheme:light){:root{--bg:#f2f3f8;--card:#fff;--line:#cfd5e6;--text:#16203a;--mute:#56627f;--gold:#7a5c10}input[type=text],input[type=password],textarea,.box,code{background:#f7f8fc}button.main{color:#fff}}
+</style>
+</head>
+<body>
+<main>
+<h1>Đăng nội dung lên trang EXO</h1>
+<p class="sub">Chọn ảnh/video/nhạc, sửa chữ và thư, bấm đăng. Trang cập nhật sau khoảng 1 phút.</p>
+
+<section>
+<h2>Tên khách (mỗi khách một link riêng)</h2>
+<label for="slug">Tên khách hoặc mã link</label>
+<input type="text" id="slug" placeholder="vd: ngoc-anh" autocomplete="off">
+<p id="linkPrev"><small></small></p>
+<small>Gõ tiếng Việt có dấu cũng được, editor tự đổi thành chữ không dấu. Mỗi tên có ảnh, nhạc, lời nhắn riêng và không đè lên khách khác. Để trống sẽ đăng đè lên trang mặc định.</small>
+<p><button type="button" id="listBtn">Xem danh sách khách đã tạo</button></p>
+<div id="clients"></div>
+</section>
+
+<section>
+<h2>1. Kết nối GitHub</h2>
+<div class="row">
+<div><label for="owner">Tài khoản</label><input type="text" id="owner" value="phuongluu1110"></div>
+<div><label for="repo">Repository</label><input type="text" id="repo" value="temp-exo"></div>
+</div>
+<div class="row">
+<div><label for="branch">Nhánh</label><input type="text" id="branch" value="main"></div>
+<div><label for="dir">Thư mục chứa trang <small>(trống nếu ở gốc)</small></label><input type="text" id="dir"></div>
+</div>
+<label for="token">Token GitHub</label>
+<input type="password" id="token" autocomplete="off" placeholder="github_pat_...">
+<label class="chk"><input type="checkbox" id="remember"> Nhớ token trên thiết bị này</label>
+<small>Tạo tại GitHub → Settings → Developer settings → Fine-grained tokens, chỉ cấp cho đúng repo này, quyền <b>Contents: Read and write</b>.</small>
+</section>
+
+<section>
+<h2>2. Màn hình mở đầu</h2>
+<label for="gateLine">Câu mở đầu</label><input type="text" id="gateLine" value="Chúng ta đã cùng nhau lớn lên.">
+<label for="kicker">Dòng nhỏ phía trên ảnh</label><input type="text" id="kicker" value="EXO · EXO-L · 2012 — 2026">
+<div class="row">
+<div><label for="t1">Tiêu đề, dòng 1</label><input type="text" id="t1" value="Chúng ta đã lớn"></div>
+<div><label for="t2">Tiêu đề, dòng 2 (in nghiêng)</label><input type="text" id="t2" value="lên cùng nhau."></div>
+</div>
+<label for="hsub">Câu giới thiệu</label>
+<textarea class="s" id="hsub">Năm tháng trôi qua. Ta đã đổi thay. Họ cũng vậy.
+Và không hiểu sao, những tấm ảnh này vẫn nhớ ta từng là ai.</textarea>
+</section>
+
+<section><h2>3. Tám ảnh polaroid</h2><div class="cards" id="pola"></div></section>
+<section><h2>4. Bốn khung "The road we've shared"</h2><div class="cards" id="road"></div></section>
+
+<section>
+<h2>5. Our Youth</h2>
+<div class="row"><div class="card"><div class="box" id="vbox" tabindex="0" role="button">Chọn video (mp4)</div><input type="file" accept="video/*" id="vfile" hidden></div>
+<div><label for="ycap">Chú thích video</label><input type="text" id="ycap" value="2012 — 2026"><label for="yk">Câu mở</label><input type="text" id="yk" value="We had a youth together."></div></div>
+<label for="ybody">Lời nhắn <small>(trống một dòng giữa các đoạn)</small></label>
+<textarea id="ybody">Có thể khi ấy ta chưa biết, nhưng những năm tháng đó chính là tuổi trẻ của mình.
+
+Ta có những bài hát để chờ, những sân khấu để mong, những cái tên khiến ngày trôi qua nhẹ nhàng hơn một chút.
+
+Có một Neverland nhỏ trong lòng, nơi tuổi trẻ vẫn chưa chịu rời đi.
+
+Nhiều năm nữa, có thể ta chẳng nhớ hết từng chi tiết. Nhưng ta vẫn sẽ nhớ cảm giác được trẻ, được yêu một điều gì đó bằng cả trái tim, và có những người mà âm nhạc của họ đã trở thành một phần cuộc sống.</textarea>
+<small>Video lớn hơn 40MB nên nén lại trước khi đăng.</small>
+</section>
+
+<section><h2>6. Onward</h2><div class="cards" id="notes"></div>
+<label for="closing">Câu kết</label>
+<textarea class="s" id="closing">Chúng mình vẫn ở đây.
+Các anh vẫn đang bước tiếp.
+Và biết đâu, vẫn còn vài ký ức nữa
+đang chờ ta phía trước.</textarea></section>
+
+<section>
+<h2>7. Lá thư</h2>
+<div class="row">
+<div><label for="ldate">Ngày</label><input type="text" id="ldate" value="Một đêm cuối năm, 2026"></div>
+<div><label for="lto">Gửi</label><input type="text" id="lto" value="Gửi EXO,"></div>
+</div>
+<label for="lbody">Nội dung <small>(trống một dòng giữa các đoạn, xuống dòng thường để ngắt dòng trong đoạn)</small></label>
+<textarea id="lbody" style="min-height:260px">Cảm ơn các anh đã là một phần tuổi trẻ của em.
+Cảm ơn những bài hát, những sân khấu, những khoảnh khắc đã lặng lẽ trở thành một phần câu chuyện của em.
+
+Mình đã đi được một chặng đường dài.
+Dù thời gian có trôi bao lâu, em nghĩ một phần trong em sẽ luôn nhớ đứa trẻ ngày ấy, vô tình tìm thấy các anh trên màn hình TV.
+
+Nếu những năm tháng ấy là một chương của tuổi trẻ,
+thì em biết ơn vì EXO đã được viết ở đâu đó trong đó.
+
+Hy vọng trong tương lai em sẽ gặp được điều em muốn, mà anh vẫn còn giữ được ước nguyện thuở ấy.</textarea>
+<label for="lsign">Ký tên</label><input type="text" id="lsign" value="— Wendy">
+<div class="row">
+<div><label for="fsub">Câu cuối trang</label><input type="text" id="fsub" value="And maybe, there are still a few memories left to make."></div>
+<div><label for="ffoot">Dòng chân trang</label><input type="text" id="ffoot" value="EXO × EXO-L · 2026"></div>
+</div>
+</section>
+
+<section>
+<h2>8. Nhạc nền</h2>
+<div class="card"><div class="box" id="mbox" tabindex="0" role="button">Chọn file nhạc (mp3)</div><input type="file" accept="audio/*" id="mfile" hidden></div>
+<small>Nhạc được lưu thành <code>music/nhac.mp3</code>. Nên dùng file dưới 20MB.</small>
+<p><button type="button" id="loadBtn">Tải nội dung đang có trên GitHub</button></p>
+</section>
+
+<button type="button" class="main" id="go">Đăng lên GitHub</button>
+<div id="log" role="status" aria-live="polite"></div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const log = (m, c) => { const s = document.createElement('div'); if (c) s.className = c; s.textContent = m; $('log').appendChild(s); };
+const files = {};   // đường dẫn trong repo -> base64
+const MAX_MB = 40;
+
+const POLA = [['2012','Lần đầu gặp nhau'],['2013','Bài hát nghe mãi'],['2016','Đêm concert đầu tiên'],['2018','Cả nhóm bên nhau'],['2020','Những ngày chờ đợi'],['2022','Mỗi người một đường'],['2024','Vẫn còn đó'],['2026','Và bây giờ']];
+const ROAD = [['2012','Chúng mình gặp các anh khi còn rất trẻ. Một bài hát, một sân khấu, và mọi thứ bắt đầu.'],['2016','Ta nhìn các anh lớn lên, đổi thay, đứng trên những sân khấu ngày một rộng hơn. Ta cũng đang lớn lên, theo cách của riêng mình.'],['2020','Có những ngày vui, cũng có những lúc khó khăn, có những lần chờ đợi thật dài. Nhưng ta vẫn ở đây, vẫn nghe, vẫn nhớ.'],['2026','Những bài hát nghe đi nghe lại, những sân khấu đã chờ… vẫn còn nguyên ý nghĩa. Một phần tuổi trẻ của ta đã lớn lên cùng nhau.']];
+const NOTES = [['Time','Thời gian dần trôi. Mỗi người chọn cho mình một hướng đi. Có những thay đổi, có những khó khăn, và mỗi lần chờ đợi lại dài hơn ta nghĩ.'],['Change','Những cái tên từng dành cả tuổi trẻ để theo đuổi ngày ấy chỉ còn là một phần nhỏ của cuộc sống, khi tất cả cùng lớn thêm một chút. Có thể con đường không còn như xưa. Có thể năm tháng đã bào mòn ta theo những cách ta chưa từng nghĩ tới.'],['Hope','Nhưng có lẽ trưởng thành là hiểu rằng, có những điều không cần giữ nguyên vẹn để vẫn còn ý nghĩa.']];
+
+const poolIn = { pola: [], road: [], notes: [] };
+
+function el(tag, attrs, parent) { const e = document.createElement(tag); Object.assign(e, attrs || {}); if (parent) parent.appendChild(e); return e; }
+function field(card, label, tag, val, store) {
+  const l = el('label', { textContent: label }, card), i = el(tag, { value: val }, card);
+  if (tag === 'input') i.type = 'text';
+  l.append(); store.push(i); return i;
+}
+function imgCard(parent, file, label, png) {
+  const card = el('div', { className: 'card' }, parent);
+  const box = el('div', { className: 'box', textContent: label, tabIndex: 0 }, card); box.setAttribute('role', 'button'); box.setAttribute('aria-label', 'Chọn ảnh: ' + label);
+  const inp = el('input', { type: 'file', accept: 'image/*', hidden: true }, card);
+  box.onclick = () => inp.click();
+  box.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inp.click(); } };
+  inp.onchange = async () => {
+    if (!inp.files[0]) return;
+    try {
+      const b = await shrink(inp.files[0], png);
+      files[file] = b; box.style.backgroundImage = 'url(data:image/' + (png ? 'png' : 'jpeg') + ';base64,' + b + ')';
+      box.textContent = ''; box.classList.add('has');
+    } catch (e) { log(e.message, 'err'); }
+  };
+  return card;
+}
+POLA.forEach(([y, c], i) => { const k = imgCard($('pola'), 'images/anh-' + (i + 1) + '.jpg', 'Ảnh ' + (i + 1)); poolIn.pola.push([]);
+  field(k, 'Năm', 'input', y, poolIn.pola[i]); field(k, 'Chú thích', 'input', c, poolIn.pola[i]); });
+ROAD.forEach(([y, t], i) => { const k = imgCard($('road'), 'images/hanh-trinh-' + (i + 1) + '.jpg', 'Khung ' + (i + 1)); poolIn.road.push([]);
+  field(k, 'Năm', 'input', y, poolIn.road[i]); field(k, 'Lời khi rê chuột', 'textarea', t, poolIn.road[i]); });
+NOTES.forEach(([k, t], i) => { const c = el('div', { className: 'card' }, $('notes')); poolIn.notes.push([]);
+  field(c, 'Tiêu đề', 'input', k, poolIn.notes[i]); field(c, 'Nội dung', 'textarea', t, poolIn.notes[i]); });
+
+function shrink(file, png, max = 1800) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      res((png ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', 0.85)).split(',')[1]);
+    };
+    img.onerror = () => rej(new Error('Không đọc được ảnh'));
+    img.src = url;
+  });
+}
+function readB64(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = () => rej(new Error('Không đọc được file')); r.readAsDataURL(file); });
+}
+function mediaPick(boxId, inpId, dest) {
+  const box = $(boxId), inp = $(inpId);
+  box.onclick = () => inp.click();
+  box.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inp.click(); } };
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    if (f.size > MAX_MB * 1048576) { log('File quá lớn (' + Math.round(f.size / 1048576) + 'MB). Hãy nén xuống dưới ' + MAX_MB + 'MB.', 'err'); return; }
+    files[dest] = await readB64(f); box.textContent = '✓ ' + f.name; box.classList.add('has');
+  };
+}
+mediaPick('vbox', 'vfile', 'videos/tuoi-tre.mp4');
+mediaPick('mbox', 'mfile', 'music/nhac.mp3');
+
+// Nhớ cấu hình
+try {
+  const s = JSON.parse(localStorage.getItem('cfg-exo') || '{}');
+  ['owner','repo','branch','dir','token'].forEach(k => { if (s[k] !== undefined) $(k).value = s[k]; });
+  if (s.token) $('remember').checked = true;
+} catch (e) {}
+function saveCfg() {
+  try { const s = {}; ['owner','repo','branch','dir'].forEach(k => s[k] = $(k).value); if ($('remember').checked) s.token = $('token').value; localStorage.setItem('cfg-exo', JSON.stringify(s)); } catch (e) {}
+}
+
+// GitHub API
+const cfg = () => ({ o: $('owner').value.trim(), r: $('repo').value.trim(), b: $('branch').value.trim() || 'main', d: $('dir').value.trim().replace(/^\/|\/$/g, ''), t: $('token').value.trim() });
+const slugify = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const slug = () => slugify($('slug').value);
+const root = c => (c.d ? c.d + '/' : '');
+const path = (c, p) => root(c) + (slug() ? 'khach/' + slug() + '/' : '') + p;
+const siteUrl = c => 'https://' + c.o + '.github.io/' + c.r + '/' + (slug() ? '?k=' + slug() : '');
+function showPrev() { const c = cfg(); $('linkPrev').firstChild.textContent = 'Link của khách: ' + siteUrl(c); }
+['slug', 'owner', 'repo'].forEach(id => $(id).addEventListener('input', showPrev));
+showPrev();
+const api = (c, p) => 'https://api.github.com/repos/' + c.o + '/' + c.r + '/contents/' + p.split('/').map(encodeURIComponent).join('/');
+const hdr = c => ({ 'Authorization': 'Bearer ' + c.t, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
+const utf8b64 = s => { let x = ''; new TextEncoder().encode(s).forEach(v => x += String.fromCharCode(v)); return btoa(x); };
+const b64utf8 = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g, '')), ch => ch.charCodeAt(0)));
+async function getFile(c, p) {
+  const r = await fetch(api(c, p) + '?ref=' + encodeURIComponent(c.b) + '&t=' + Date.now(), { headers: hdr(c) });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('GitHub trả về lỗi ' + r.status + (r.status === 401 ? ' (token sai hoặc hết hạn)' : r.status === 403 ? ' (token thiếu quyền ghi)' : ''));
+  return r.json();
+}
+async function putFile(c, p, b64, msg, sha) {
+  const body = { message: msg, content: b64, branch: c.b }; if (sha) body.sha = sha;
+  const r = await fetch(api(c, p), { method: 'PUT', headers: { ...hdr(c), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.message || 'Lỗi ' + r.status); }
+}
+async function readContent(c) {
+  const f = await getFile(c, path(c, 'content.json'));
+  return f ? { sha: f.sha, data: JSON.parse(b64utf8(f.content)) } : null;
+}
+
+const SIMPLE = { gateLine: 'gateLine', kicker: 'kicker', heroSub: 'hsub', ycap: 'ycap', yk: 'yk', ybody: 'ybody', closing: 'closing', ldate: 'ldate', lto: 'lto', lbody: 'lbody', lsign: 'lsign', fsub: 'fsub', ffoot: 'ffoot' };
+
+$('listBtn').onclick = async () => {
+  const c = cfg(), box = $('clients'); box.textContent = ''; $('log').textContent = '';
+  if (!c.t) return log('Hãy nhập token trước.', 'err');
+  try {
+    const r = await fetch(api(c, root(c) + 'khach') + '?ref=' + encodeURIComponent(c.b) + '&t=' + Date.now(), { headers: hdr(c) });
+    if (r.status === 404) return box.append('Chưa có khách nào.');
+    if (!r.ok) throw new Error('GitHub trả về lỗi ' + r.status);
+    const dirs = (await r.json()).filter(x => x.type === 'dir');
+    if (!dirs.length) return box.append('Chưa có khách nào.');
+    dirs.forEach(d => {
+      const b = el('button', { type: 'button', textContent: d.name }, box); b.style.margin = '0 8px 8px 0';
+      b.onclick = () => { $('slug').value = d.name; showPrev(); $('loadBtn').click(); };
+    });
+  } catch (e) { log(e.message, 'err'); }
+};
+
+$('loadBtn').onclick = async () => {
+  const c = cfg(); $('log').textContent = '';
+  if (!c.t) return log('Hãy nhập token trước.', 'err');
+  try {
+    const cur = await readContent(c);
+    if (!cur) return log('Chưa có content.json, hãy sửa nội dung rồi đăng.');
+    const j = cur.data;
+    Object.keys(SIMPLE).forEach(k => { if (j[k] != null) $(SIMPLE[k]).value = j[k]; });
+    if (j.title) { $('t1').value = j.title[0]; $('t2').value = j.title[1]; }
+    ['pola', 'road', 'notes'].forEach(g => (j[g] || []).forEach((v, i) => v.forEach((x, n) => { if (poolIn[g][i]) poolIn[g][i][n].value = x; })));
+    log('Đã tải nội dung hiện tại.', 'ok');
+  } catch (e) { log(e.message, 'err'); }
+};
+
+$('go').onclick = async () => {
+  const c = cfg(); $('log').textContent = '';
+  if (!c.t || !c.o || !c.r) return log('Hãy điền đủ tài khoản, repository và token.', 'err');
+  if (!slug() && !confirm('Chưa nhập tên khách. Nội dung sẽ ghi đè lên trang mặc định. Tiếp tục?')) return;
+  saveCfg(); $('go').disabled = true;
+  try {
+    const cur = await readContent(c), imgv = (cur && cur.data.imgv) || {}, now = Date.now();
+    for (const name of Object.keys(files)) {
+      log('Đang đăng ' + name + '…');
+      const p = path(c, name), old = await getFile(c, p);
+      await putFile(c, p, files[name], 'Cập nhật ' + name, old && old.sha);
+      imgv[name] = now; log('Xong ' + name, 'ok');
+    }
+    const data = { imgv, title: [$('t1').value, $('t2').value] };
+    Object.keys(SIMPLE).forEach(k => data[k] = $(SIMPLE[k]).value);
+    ['pola', 'road', 'notes'].forEach(g => data[g] = poolIn[g].map(a => a.map(i => i.value)));
+    log('Đang đăng nội dung…');
+    await putFile(c, path(c, 'content.json'), utf8b64(JSON.stringify(data, null, 2)), 'Cập nhật nội dung', cur && cur.sha);
+    log('Xong nội dung', 'ok');
+    const site = siteUrl(c), a = el('div', { className: 'ok' }, $('log'));
+    a.append('Hoàn tất. Đợi khoảng 1 phút rồi mở: ');
+    el('a', { href: site, target: '_blank', rel: 'noopener', textContent: site }, a);
+    Object.keys(files).forEach(k => delete files[k]);
+  } catch (e) { log('Lỗi: ' + e.message, 'err'); }
+  $('go').disabled = false;
+};
+</script>
+</body>
+</html>
